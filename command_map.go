@@ -2,17 +2,10 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/davmarek/pokedex/api"
 )
 
 func commandMapf(cfg *config) error {
-	url := ""
-	if cfg.nextLocationsUrl != nil {
-		url = *cfg.nextLocationsUrl
-	}
-
-	response, err := api.GetLocationAreas(url)
+	response, err := cfg.pokeapiClient.GetLocationAreas(cfg.nextLocationsUrl)
 	if err != nil {
 		return err
 	}
@@ -32,10 +25,14 @@ func commandMapb(cfg *config) error {
 		return nil
 	}
 
-	response, err := api.GetLocationAreas(*cfg.previousLocationsUrl)
+	response, err := cfg.pokeapiClient.GetLocationAreas(cfg.previousLocationsUrl)
 	if err != nil {
 		return err
 	}
+
+	cfg.nextLocationsUrl = response.Next
+	cfg.previousLocationsUrl = response.Previous
+
 	for _, location := range response.Results {
 		fmt.Printf("%s\n", location.Name)
 	}
